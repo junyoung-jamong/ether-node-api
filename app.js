@@ -366,7 +366,6 @@ api.on('connection', function (spark)
 });
 
 
-
 client.on('connection', function (clientSpark)
 {
 	clientSpark.on('ready', function (data)
@@ -408,6 +407,6 @@ var nodeCleanupTimeout = setInterval( function ()
 
 }, 1000*60*60);
 
-server.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 30311);
 
 module.exports = server;
