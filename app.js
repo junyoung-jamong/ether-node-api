@@ -2,6 +2,23 @@ var _ = require('lodash');
 var logger = require('./lib/utils/logger');
 var chalk = require('chalk');
 var http = require('http');
+//var app = require('./lib/express');
+var Primus = require('primus');
+var express = require('express');
+var app = express();
+var path = require('path');
+var bodyParser = require('body-parser');
+
+var apiRouter = require('./lib/routers/api');
+
+var server = http.createServer(app);
+
+// view engine setup
+app.set('views', path.join(__dirname, (process.env.LITE === 'true' ? './src-lite/views' : './src/views')));
+app.set('view engine', 'jade');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, (process.env.LITE === 'true' ? './dist-lite' : './dist'))));
 
 // Init WS SECRET
 var WS_SECRET;
@@ -32,23 +49,15 @@ else
 var banned = require('./lib/utils/config').banned;
 
 // Init http server
+/*
 if( process.env.NODE_ENV !== 'production' )
-{
-	var app = require('./lib/express');
 	server = http.createServer(app);
-}
 else
 	server = http.createServer();
-
-// Init socket vars
-var Primus = require('primus');
-var api;
-var client;
-var server;
-
+*/
 
 // Init API Socket connection
-api = new Primus(server, {
+var api = new Primus(server, {
 	transformer: 'websockets',
 	pathname: '/api',
 	parser: 'JSON'
@@ -57,9 +66,8 @@ api = new Primus(server, {
 api.plugin('emit', require('primus-emit'));
 api.plugin('spark-latency', require('primus-spark-latency'));
 
-
 // Init Client Socket connection
-client = new Primus(server, {
+var client = new Primus(server, {
 	transformer: 'websockets',
 	pathname: '/primus',
 	parser: 'JSON'
@@ -67,9 +75,8 @@ client = new Primus(server, {
 
 client.plugin('emit', require('primus-emit'));
 
-
 // Init external API
-external = new Primus(server, {
+var external = new Primus(server, {
 	transformer: 'websockets',
 	pathname: '/external',
 	parser: 'JSON'
@@ -96,6 +103,43 @@ Nodes.setChartsCallback(function (err, charts)
 	}
 });
 
+app.use('/v1/api', apiRouter);
+
+app.get('/', function(req, res) {
+	res.render('index');
+});
+
+app.get('/v2/node', function(req, res){
+	if(Nodes.getNodeByIndex(0))
+		res.json(Nodes.getNodeByIndex(0).getStats())
+	else
+		res.send(false)
+});
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+	var err = new Error('Not Found');
+	err.status = 404;
+	next(err);
+});
+
+// error handlers
+app.use(function(err, req, res, next) {
+	res.status(err.status || 500);
+	res.render('error', {
+		message: err.message,
+		error: err
+	});
+});
+
+// production error handler
+app.use(function(err, req, res, next) {
+	res.status(err.status || 500);
+	res.render('error', {
+		message: err.message,
+		error: {}
+	});
+});
 
 // Init API Socket events
 api.on('connection', function (spark)
