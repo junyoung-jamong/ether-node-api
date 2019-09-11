@@ -48,14 +48,6 @@ else
 
 var banned = require('./lib/utils/config').banned;
 
-// Init http server
-/*
-if( process.env.NODE_ENV !== 'production' )
-	server = http.createServer(app);
-else
-	server = http.createServer();
-*/
-
 // Init API Socket connection
 var api = new Primus(server, {
 	transformer: 'websockets',
@@ -115,6 +107,26 @@ app.get('/v2/node', function(req, res){
 	else
 		res.send(false)
 });
+
+app.get('/v2/node/:id', function(req, res){
+	var id = req.param.id;
+	var node = Nodes.getNode({id: id})
+	if(node)
+		res.json(node.getStats())
+	else
+		res.send(false)
+});
+
+app.get('/v2/info', function(req, res){
+	if(Nodes.getNodeByIndex(0))
+		res.json(Nodes.getNodeByIndex(0).getInfo())
+	else
+		res.send(false)
+})
+
+app.get('/v2/propagation', function(req, res){
+	res.json(Nodes.blockPropagationChart())
+})
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
