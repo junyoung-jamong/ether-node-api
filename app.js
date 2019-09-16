@@ -158,7 +158,7 @@ app.get('/v1/api/node/info/:id', function(req, res){
 		});
 })
 
-app.get('/v1/api/node/propagation', function(req, res){
+app.get('/v1/api/propagation', function(req, res){
 	res.json(Nodes.blockPropagationChart())
 })
 
