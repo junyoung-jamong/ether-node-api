@@ -109,7 +109,10 @@ app.use('/v1/api/res', apiRouter);
 
 //블록체인 노드 관련 API
 app.get('/v1/api/node', function(req, res){
-	res.json(Nodes.all())
+	res.json({
+		result: true,
+		data: Nodes.all(),
+	})
 });
 
 app.get('/v1/api/node/:id', function(req, res){
@@ -159,7 +162,10 @@ app.get('/v1/api/info/:id', function(req, res){
 })
 
 app.get('/v1/api/propagation', function(req, res){
-	res.json(Nodes.blockPropagationChart())
+	res.json({
+		result: true,
+		data: Nodes.blockPropagationChart(),
+	});
 })
 
 // catch 404 and forward to error handler
@@ -173,6 +179,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
 	res.render('error', {
+		result: false,
 		message: err.message,
 		error: err
 	});
@@ -182,6 +189,7 @@ app.use(function(err, req, res, next) {
 app.use(function(err, req, res, next) {
 	res.status(err.status || 500);
 	res.render('error', {
+		result: false,
 		message: err.message,
 		error: {}
 	});
