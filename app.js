@@ -2,13 +2,13 @@ var _ = require('lodash');
 var logger = require('./lib/utils/logger');
 var chalk = require('chalk');
 var http = require('http');
-//var app = require('./lib/express');
 var Primus = require('primus');
 var express = require('express');
 var app = express();
 var path = require('path');
 var bodyParser = require('body-parser');
 
+var banned = require('./lib/utils/config').banned;
 var apiRouter = require('./lib/routers/api');
 
 var server = http.createServer(app);
@@ -45,8 +45,6 @@ else
 		console.error("WS_SECRET NOT SET!!!");
 	}
 }
-
-var banned = require('./lib/utils/config').banned;
 
 // Init API Socket connection
 var api = new Primus(server, {
@@ -95,36 +93,72 @@ Nodes.setChartsCallback(function (err, charts)
 	}
 });
 
-app.use('/v1/api', apiRouter);
-
 app.get('/', function(req, res) {
 	res.render('index');
 });
 
-app.get('/v2/node', function(req, res){
-	if(Nodes.getNodeByIndex(0))
-		res.json(Nodes.getNodeByIndex(0).getStats())
-	else
-		res.send(false)
+app.get('/ping', function(req, res) {
+    res.json({
+		result: true,
+        message: 'pong',
+    });
 });
 
-app.get('/v2/node/:id', function(req, res){
-	var id = req.param.id;
-	var node = Nodes.getNode({id: id})
+//노드 자원 관련 API
+app.use('/v1/api/res', apiRouter);
+
+//블록체인 노드 관련 API
+app.get('/v1/api/node', function(req, res){
+	res.json(Nodes.all())
+});
+
+app.get('/v1/api/node/:id', function(req, res){
+	var id = req.params.id;
+	var node = Nodes.getNode({id: id});
 	if(node)
-		res.json(node.getStats())
+		res.json({
+			result: true,
+			data: node
+		});
 	else
-		res.send(false)
+		res.json({
+			result: false,
+			message: '유효하지 않은 노드ID 입니다.',
+		});
 });
 
-app.get('/v2/info', function(req, res){
-	if(Nodes.getNodeByIndex(0))
-		res.json(Nodes.getNodeByIndex(0).getInfo())
+app.get('/v1/api/node/stats/:id', function(req, res){
+	var id = req.params.id;
+	var node = Nodes.getNode({id: id})
+
+	if(node)
+		res.json({
+			result: true,
+			data: node.getStats(),
+		});
 	else
-		res.send(false)
+		res.json({
+			result: false,
+			message: '유효하지 않은 노드ID 입니다.',
+		});
 })
 
-app.get('/v2/propagation', function(req, res){
+app.get('/v1/api/node/info/:id', function(req, res){
+	var id = req.params.id;
+	var node = Nodes.getNode({id: id})
+	if(node)
+		res.json({
+			result: true,
+			data: node.getInfo(),
+		});
+	else
+		res.json({
+			result: false,
+			message: '유효하지 않은 노드ID 입니다.',
+		});
+})
+
+app.get('/v1/api/node/propagation', function(req, res){
 	res.json(Nodes.blockPropagationChart())
 })
 
