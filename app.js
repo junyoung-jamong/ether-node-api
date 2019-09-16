@@ -127,7 +127,7 @@ app.get('/v1/api/node/:id', function(req, res){
 		});
 });
 
-app.get('/v1/api/node/stats/:id', function(req, res){
+app.get('/v1/api/stats/:id', function(req, res){
 	var id = req.params.id;
 	var node = Nodes.getNode({id: id})
 
@@ -143,7 +143,7 @@ app.get('/v1/api/node/stats/:id', function(req, res){
 		});
 })
 
-app.get('/v1/api/node/info/:id', function(req, res){
+app.get('/v1/api/info/:id', function(req, res){
 	var id = req.params.id;
 	var node = Nodes.getNode({id: id})
 	if(node)
