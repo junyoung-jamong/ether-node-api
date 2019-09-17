@@ -108,6 +108,31 @@ app.get('/ping', function(req, res) {
 app.use('/v1/api/res', apiRouter);
 
 //블록체인 노드 관련 API
+app.get('/v1/api/mining', function(req, res){
+	var nodes = Nodes.all();
+
+	if(!nodes || nodes.length == 0){
+		res.json({
+			result: false,
+			message: '노드 마이닝 정보를 불러올 수 없습니다.',
+		});
+		return;
+	}
+
+	data = new Array();
+	nodes.forEach(element => {
+		data.push({
+			id: element.id,
+			mining: element.stats.mining
+		});
+	});
+
+	res.json({
+		result: true,
+		data: data,
+	});
+})
+
 app.get('/v1/api/node', function(req, res){
 	res.json({
 		result: true,

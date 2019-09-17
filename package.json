@@ -11,6 +11,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "async": "^3.1.0",
     "body-parser": "1.13.3",
     "chalk": "1.1.1",
     "d3": "3.5.6",
