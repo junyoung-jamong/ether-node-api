@@ -10,6 +10,7 @@ var bodyParser = require('body-parser');
 
 var banned = require('./lib/utils/config').banned;
 var apiRouter = require('./lib/routers/api');
+var logRouter = require('./lib/routers/log')
 
 var server = http.createServer(app);
 
@@ -103,6 +104,9 @@ app.get('/ping', function(req, res) {
         message: 'pong',
     });
 });
+
+//로그 관련 API
+app.use('/v1/api/log', logRouter);
 
 //노드 자원 관련 API
 app.use('/v1/api/res', apiRouter);
