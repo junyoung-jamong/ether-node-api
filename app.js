@@ -10,7 +10,8 @@ var bodyParser = require('body-parser');
 
 var banned = require('./lib/utils/config').banned;
 var apiRouter = require('./lib/routers/api');
-var logRouter = require('./lib/routers/log')
+var logRouter = require('./lib/routers/log');
+var configRouter = require('./lib/routers/config');
 
 var server = http.createServer(app);
 
@@ -94,16 +95,21 @@ Nodes.setChartsCallback(function (err, charts)
 	}
 });
 
+//Metadium status page
 app.get('/', function(req, res) {
 	res.render('index');
 });
 
+//Health check endpoint
 app.get('/ping', function(req, res) {
     res.json({
 		result: true,
         message: 'pong',
     });
 });
+
+//구성 관련 API
+app.use('/v1/api/config', configRouter);
 
 //로그 관련 API
 app.use('/v1/api/log', logRouter);
