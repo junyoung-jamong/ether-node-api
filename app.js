@@ -12,6 +12,7 @@ var banned = require('./lib/utils/config').banned;
 var apiRouter = require('./lib/routers/api');
 var logRouter = require('./lib/routers/log');
 var configRouter = require('./lib/routers/config');
+var recoveryRouter = require('./lib/routers/recovery');
 
 var server = http.createServer(app);
 
@@ -113,6 +114,9 @@ app.use('/v1/api/config', configRouter);
 
 //로그 관련 API
 app.use('/v1/api/log', logRouter);
+
+//복구 관련 API
+app.use('/v1/api/recovery', recoveryRouter);
 
 //노드 자원 관련 API
 app.use('/v1/api/res', apiRouter);
